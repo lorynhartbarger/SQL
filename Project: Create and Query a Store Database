@@ -1,3 +1,5 @@
+/* In this project, I created a table containing information about the inventory of a clothing store. I then preformed a few queries in the table */
+
 CREATE TABLE lolos_shop (id INTEGER PRIMARY KEY, item TEXT, store_section INTEGER, quantity INTEGER, avg_customer_rating INTEGER, color TEXT); 
 
 INSERT INTO lolos_shop VALUES 
@@ -17,10 +19,13 @@ INSERT INTO lolos_shop VALUES
 (14, "heels", 6, 67, 3, "nude"),
 (15, "running shoes", 6, 89, 5, "black"); 
 
+/* My first query selected information about items with average customer ratings greater than 4 and had an inventory stock of greater than 100. I sorted  the results by number of items in inventory in descending order. */
 
 SELECT item, quantity, avg_customer_rating FROM lolos_shop
 WHERE avg_customer_rating >4 AND quantity > 100
 ORDER BY quantity desc; 
+
+/* Next, I selcted the total number of types of clothing items in each store section and the total number of items in inventory for those items */
 
 SELECT store_section, COUNT(item) AS items_per_section, SUM(quantity) AS total_items 
 FROM lolos_shop 
