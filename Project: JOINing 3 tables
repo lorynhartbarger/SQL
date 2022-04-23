@@ -1,0 +1,51 @@
+/* FOR THIS PROJECT, I WAS GIVEN 3 RELATED TABLES. PLEASE LOOK BELOW TO SEE THE CODE I WROTE TO JOIN ALL THREE TABLES IN A QUERY */ 
+
+CREATE TABLE persons (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fullname TEXT,
+    age INTEGER);
+    
+INSERT INTO persons (fullname, age) VALUES ("Bobby McBobbyFace", "12");
+INSERT INTO persons (fullname, age) VALUES ("Lucy BoBucie", "25");
+INSERT INTO persons (fullname, age) VALUES ("Banana FoFanna", "14");
+INSERT INTO persons (fullname, age) VALUES ("Shish Kabob", "20");
+INSERT INTO persons (fullname, age) VALUES ("Fluffy Sparkles", "8");
+
+CREATE table hobbies (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    person_id INTEGER,
+    name TEXT);
+    
+INSERT INTO hobbies (person_id, name) VALUES (1, "drawing");
+INSERT INTO hobbies (person_id, name) VALUES (1, "coding");
+INSERT INTO hobbies (person_id, name) VALUES (2, "dancing");
+INSERT INTO hobbies (person_id, name) VALUES (2, "coding");
+INSERT INTO hobbies (person_id, name) VALUES (3, "skating");
+INSERT INTO hobbies (person_id, name) VALUES (3, "rowing");
+INSERT INTO hobbies (person_id, name) VALUES (3, "drawing");
+INSERT INTO hobbies (person_id, name) VALUES (4, "coding");
+INSERT INTO hobbies (person_id, name) VALUES (4, "dilly-dallying");
+INSERT INTO hobbies (person_id, name) VALUES (4, "meowing");
+
+CREATE table friends (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    person1_id INTEGER,
+    person2_id INTEGER);
+
+INSERT INTO friends (person1_id, person2_id)
+    VALUES (1, 4);
+INSERT INTO friends (person1_id, person2_id)
+    VALUES (2, 3);
+
+/* MY QUERY WAS ABLE TO SELECT EACH PERSON, THEIR HOBBY, THIER FRIEND, AND THEIR FRIEND'S HOBBIE. THIS CONECTED RELATED INFROMATION FROM THREE TABLES */
+
+SELECT p1.fullname AS friend_1, a.name AS friend1_hobbies, p2.fullname AS friend_2, b.name AS friend2_hobbies
+FROM friends 
+JOIN persons as p1
+ON p1.id = friends.person1_id
+JOIN persons AS p2
+ON p2.id = friends.person2_id
+JOIN hobbies AS a
+ON a.person_id= friends.person1_id
+JOIN hobbies AS b
+ON b.person_id = friends.person2_id;
