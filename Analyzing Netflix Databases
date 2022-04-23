@@ -1,0 +1,35 @@
+/* Using the PostgreSQL dialect, I was able to aggregate information from two tables containing data on Netflix  movies and shows */
+
+/* My first query selected the total number of movies in the database */
+
+SELECT COUNT(*) 
+FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
+WHERE type='Movie';
+
+/* Next, I wanted to see when the most recent tv show or movie was added to the database */
+
+SELECT MAX(DATE(date_added))
+FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info";
+
+/* This next query selected all the movie titles in alphabetical order */
+ 
+SELECT TITLE
+FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
+ORDER BY title asc;
+
+/* Now I wanted to know who was the director of the movies "Bright Star" */
+
+SELECT director 
+FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info" titles
+LEFT JOIN  "CharlotteChaze/BreakIntoTech"."netflix_people" people
+ON titles.show_id=people.show_id
+WHERE titles.title='Bright Star';
+
+/* My final query selected the oldest movie in the database and the year it was released */
+
+SELECT title, MIN(release_year) 
+FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
+WHERE type='Movie'
+GROUP BY title, release_year
+ORDER BY release_year asc
+LIMIT 1;
