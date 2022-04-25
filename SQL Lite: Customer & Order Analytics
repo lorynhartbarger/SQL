@@ -73,3 +73,17 @@ SELECT product, SUM(Quantity)
 WHERE location LIKE '%Los Angeles%'
 GROUP BY Product;
 
+/* How many location in New York sold more than 1 product in January */
+
+SELECT COUNT(DISTINCT location)
+FROM BIT_DB.JanSales
+WHERE location LIKE "%NY%"
+AND Quantity > 1;
+
+/* How many types of each headphone were sold in February? */
+
+SELECT SUM(quantity) AS Total_Sold, Product
+FROM BIT_DB.FEBSales
+WHERE product LIKE "%headphones%"
+GROUP BY product;
+
