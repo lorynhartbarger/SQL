@@ -26,8 +26,6 @@ AS total_revennue
 FROM BIT_DB.JANSALES
 GROUP BY product; 
 
-SELECT * FROM FebSales LIMIT 10; 
-
 /* Find the products sold at 548 Lincoln St, Seattle, WA 98101, the total number of items sold, and the total revenue of those items*/
 
 SELECT product, 
@@ -87,3 +85,12 @@ FROM BIT_DB.FEBSales
 WHERE product LIKE "%headphones%"
 GROUP BY product;
 
+/* What was the avg amount spent per account in February */ 
+
+SELECT AVG(Price) AS avg_spent 
+FROM BIT_DB.FebSales; 
+
+/* What was the avg amount spent per account in February per item*/
+
+SELECT AVG(Price/Quantity) AS avg_spent 
+FROM BIT_DB.FebSales;
