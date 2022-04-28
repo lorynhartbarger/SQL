@@ -1,0 +1,65 @@
+/* A murder took place on Jan 15 2018 in SQL City. Use SQL to solve the murder */ 
+
+SELECT * FROM crime_scene_report
+WHERE 
+date = 20180115 
+AND 
+city = "SQL City" 
+AND type Like "%Murder%"; 
+
+/* Now, we know that one of the witnesses is 
+named Annabel and lives on Franklin Ave.  We also know that the other witness lived at the last house on NorthWestern Dr.*/
+SELECT * FROM person
+WHERE name LIKE "Annabel%" 
+AND address_street_name LIKE "%Franklin Ave"; 
+
+/* Annabel's id = 16371 */
+
+SELECT * FROM person
+WHERE address_street_name LIKE "%NorthWestern Dr" 
+ORDER BY address_number desc;
+
+/* Witness #2 is Morty Schapiro and his id= 14887 */ 
+/* Find the witness statements */ 
+
+SELECT * FROM person
+JOIN interview
+ON person.id = interview.person_id
+WHERE person.id = 14887 OR 
+person.id = 16371;
+
+/* Morty- I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. The man got into a car with a plate that included "H42W". 
+Annabel- I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th. */
+
+SELECT * FROM get_fit_now_member  
+WHERE person_id = 16371
+
+/* Annabel's membership id =90081. Now find out what time Annabel was at the gym on Jan 9th */
+
+SELECT * FROM get_fit_now_check_in
+WHERE membership_id = 90081 AND 
+check_in_date = 20180109
+
+/* Annabel was in the gym from 1600 to 1700. Now see all other gym members that were at the gym within the same time frame that Annabel was there */ 
+
+SELECT name, get_fit_now_member.person_id, get_fit_now_member.id AS membership_id, get_fit_now_member.membership_status FROM get_fit_now_member
+JOIN get_fit_now_check_in
+ON get_fit_now_member.id = get_fit_now_check_in.membership_id
+WHERE check_in_date = 20180109
+AND check_in_time < 1700  
+AND check_out_time > 1600; 
+
+/* Now we have narrow the suspects down to Joe Germuska	(membership id = 48Z7A, person id = 28819) and Jeremy Bowers	(member id 48Z55, person id = 67318). Remember from Morty's witness statement- "The membership number on the bag started with "48Z". Onlt gold members have those bags" So this checks out becuase both suspects are gold members and have membership ids starting with "48Z". */ 
+
+/* Morty also said "The man got into a car with a plate that included "H42W"" */ 
+
+/* Find out which of the suspects has a license plate with "H42W" in the name */ 
+SELECT person.name, person.id, plate_number FROM person
+JOIN drivers_license 
+on person.license_id = drivers_license.id
+WHERE plate_number LIKE "%H42W%"
+AND (person.id = 67318 OR person.id = 28819);
+
+/* Jeremy Bowers is the killer! */ 
+
+
