@@ -56,7 +56,7 @@ FROM Kardashians AS person
 JOIN Kardashians AS favorite
 ON favorite.id = person.favorite_sister; 
 
-/* My next query was to select each family member and thier older and younger siblings connecting the Kardashians table with the siblings table */
+/* My next query was to select each family member and their older and younger siblings connecting the Kardashians table with the siblings table */
 
 SELECT kardashians.name AS person, a.name AS older_sibling, b.name AS younger_sibling
 FROM siblings
