@@ -1,10 +1,18 @@
-/*For this project, I wrote a subquery to find the business unit name, customer name, 
-and revenue for business units with average revenue greater than 100,000 */
+/*  For this project, I wrote a subquery to find the business unit name and customer name, and 
+Revenue where revenue is greater than 10000. I used a JOIN clause to map CUSTOMER_ID to the 
+ID field in the SALES table to find the Revenue. Finally, I ordered the results by REVEBUE descending      */
 
 SELECT 
-CUSTOMER_ID,
-SUM(ORDER_TOTAL) AS TOTAL_ORDER_AMNT
-FROM ORDER_INFO
-GROUP BY CUSTOMER
+bd.BUSINESS_UNIT_ID,
+bd.CUSTOMER_ID,
+bd.CUSTOMER_NAME
+FROM BUSINESS_DATA bd
+JOIN(
+  SELECT ID, REVENUE
+  FROM SALES
+  WHERE REVENUE > 10000) s
+ON bd.CUSTOMER_ID = s.ID
+ORDER BY s.REVENUE DESC;
+
 
                 
