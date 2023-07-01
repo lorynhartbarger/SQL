@@ -1,0 +1,53 @@
+/* Use HAVING when aggregating a measure by Dimension and 
+WHERE when you are not aggregating */
+
+/*                Ex: Data Set
+
+Salesman    Store Location      Sales        Order_ID
+  Bob       Asheville            10000        1
+  Mary      Charlotte            25000        2
+  Loryn     Charlotte            50000        3
+  Loryn     Charlotte            800          3
+  Mark      Asheville            1000         4
+  Sam       Greensboro           3000         5
+  Sam       Greensboro           800          5
+  Loryn     Charlotte            100          6
+  Mark      Asheville            10000        4
+
+*/
+
+//HAVING Example:
+SELECT 
+  Salesman,
+  Order_ID
+  SUM(Sales) as Total_Sales
+FROM SALES_DATA
+GROUP BY Salesman, Order_ID
+HAVING Total_Sales > 10000;
+
+/* This return the Salesman, Order_ID, and the aggregated Sales as Total_Sales 
+by Salesman and Order_ID where Total_Sales is greater than 10000 
+Salesman   Order_ID  Total_Sales
+Mary        2         25000
+Loryn       3         50800   
+Mark        4         11000  */
+
+//WHERE Example:
+SELECT 
+  Salesman,
+  Order_ID
+  Sales 
+FROM SALES_DATA
+WHERE Sales >10000;
+
+/* This returns the Salesman, Order_ID, and Sales where the non-aggregated Sales is 
+greater than 10000        */
+Salesman   Order_ID    Sales
+Mary        2           25000
+Loryn       3           50000   
+
+                        
+
+
+
+
