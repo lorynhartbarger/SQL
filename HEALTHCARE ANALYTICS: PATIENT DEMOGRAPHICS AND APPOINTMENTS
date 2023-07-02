@@ -1,1 +1,84 @@
+/* For this project, I will be analyzing patient demographics and 
+medical appointment records. */
+
+-- Example Data in PATIENTS Table --
+INSERT INTO PATIENTS (PATIENT_ID, PATIENT_NAME, AGE, GENDER, CITY)
+VALUES
+  (1, 'John Smith', 45, 'Male', 'New York'),
+  (2, 'Jane Doe', 32, 'Female', 'Los Angeles'),
+  (3, 'David Johnson', 55, 'Male', 'Chicago'),
+  (4, 'Emily Wilson', 28, 'Female', 'Houston'),
+  (5, 'Michael Brown', 60, 'Male', 'Dallas'),
+  (6, 'Sophia Davis', 38, 'Female', 'San Francisco');
+
+-- Example Data in APPOINTMENTS Table --
+INSERT INTO APPOINTMENTS (APPOINTMENT_ID, PATIENT_ID, APPOINTMENT_DATE, DOCTOR_NAME, APPOINTMENT_TYPE)
+VALUES
+  (1, 1, '2023-06-01', 'Dr. Smith', 'General Checkup'),
+  (2, 2, '2023-06-03', 'Dr. Johnson', 'Dental Cleaning'),
+  (3, 3, '2023-06-05', 'Dr. Davis', 'Cardiology Consultation'),
+  (4, 4, '2023-06-07', 'Dr. Wilson', 'Pediatric Vaccination'),
+  (5, 5, '2023-06-09', 'Dr. Brown', 'General Checkup'),
+  (6, 6, '2023-06-12', 'Dr. Smith', 'Dental Filling'),
+  (7, 2, '2023-06-15', 'Dr. Johnson', 'General Checkup'),
+  (8, 3, '2023-06-17', 'Dr. Davis', 'Cardiology Consultation'),
+  (9, 4, '2023-06-20', 'Dr. Wilson', 'General Checkup'),
+  (10, 5, '2023-06-25', 'Dr. Brown', 'Orthopedic Consultation');
+
+-- calculate the total number of patients and the avg age of patients
+TOTALS_P
+SELECT 
+  COUNT(DISTINCT PATIENT_ID) AS TOTAL_PATIENTS,
+  AVG(AGE) AS AVG_AGE,
+  PATIENT_ID
+FROM PATIENTS;
+
+--calculate the total number of doctors, appointments, doctors per patients, 
+doctors per appointments, and patients per appointments
+
+TOTALS_DA:
+SELECT 
+  COUNT(DISTINCT DOCTOR_NAME) AS TOTAL_DOCTORS,
+  COUNT(DISTINCT APPOINTMENT_ID) AS TOTAL_APPOINTMENTS,
+  PATIENT_ID
+FROM APPOINTMENTS;
+
+SELECT 
+  (DA.TOTAL_DOCTORS/DA.TOTAL_APPOINTMENTS) AS DOCS_PER_APPT,
+  (DA.TOTAL_DOCTORS/P.TOTAL_PATIENTS) AS DOSC_PER_PT,
+  (P.TOTAL_PATIENTS/ DA.TOTAL_APPOINTMENTS) AS PT_PER_APPT
+FROM TOTALS_DA
+JOIN TOTALS_P ON P.PATIENT_ID = DA.PATIENT_ID;
+
+--calculate the total number of appointments by gender
+SELECT
+  GENDER,
+  DA.TOTAL_APPOINTMENTS
+FROM PATIENTS
+JOIN TOTALS_DA DA ON DA.PATIENT_ID = P.PATIENT_ID
+GROUP BY GENDER;
+
+
+--calculate the numer of appointments per month
+SELECT
+  DATE_TRUNC('month',APPOINTMENT_DATE) AS MONTH,
+  COUNT(*) AS APPOINTMENT_COUNT,
+  AVG(COUNT(*)) OVER () AS AVG_APPT_PER_MONTH
+FROM APPOINTMENTS
+GROUP BY MONTH;
+
+--determine the busiest day for appointments
+SELECT 
+  APPOINTMENT_DATE,
+  COUNT(*) AS APPOINTMENT_COUNT
+FROM APPOINTMENTS
+GROUP BY APPOINTMENT_DATE
+ORDER BY APPOINTMENT_COUNT DESC
+LIMIT 1;
+
+
+
+
+
+
 
