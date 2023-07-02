@@ -1,6 +1,6 @@
 /* For this project, I have three tables containing patient health care data:
 PATIENTS (PATIENT_ID, PATIENT_NAME, AGE, GENDER, CITY)
-VITAL_SIGNS(READING_ID,PATIENT_ID,READING_DATE,TEMP,BP,HEART_RATE)
+VITAL_SIGNS (READING_ID,PATIENT_ID,READING_DATE,TEMP,BP,HEART_RATE, SYSTOLIC_BP,DIASTOLIC_BP)
 LABS(RESULT_ID,PATIENT_ID,TEST_NAME,RESULT_VALUE,RESULT_DATE)
 I will perform various health care analytics using the above tables
 */
@@ -40,9 +40,49 @@ JOIN VITAL_SIGNS VS ON P.PATIENT_ID = VS.PATIENT_ID
 GROUP BY P.PATIENT_ID, P.PATIENT_NAME
 HAVING MAX(VS.SYSTOLIC_BP) > (SELECT PERCENTILE_COUNT(0.95) WITHIN GROUP (ORDER BY SYSTOLIC_BP) FROM VITAL_SIGNS)
   OR MAX(VS.DIASTOLIC_BP) > (SELECT PERCENTILE_COUNT(0.95) WITHIN GROUP (ORDER BY DIASTOLIC_BP) FROM VITAL_SIGNS);
-/* In this query, I identify the top 95% of both diastolic and systolic blood pressure readings from all patients.
+
+/* In the above query, I identify the top 95% of both diastolic and systolic blood pressure readings from all patients.
 This is used to limit the results to return patient info for those patients with either systolic or diastolic
 BP >= to the 95th percentile. */
+
+--identify the avg, min, and max heart rate by age group only condidering the lastest 
+--readings.
+SELECT
+  CASE
+    WHEN AGE >= 0 AND AGE <=5 THEN 'Infant-5'
+    WHEN AGE >5 AND AGE <=12 THEN '6-12'
+    WHEN AGE >12 AND AGE <18 THEN '13-17'
+    WHEN AGE >=18 AND AGE <30 THEN '18-29'
+    WHEN AGE >=30 AND AGE <40 THEN '30-39'
+    WHEN AGE >=40 AND AGE <50 THEN '40-49'
+    WHEN AGE >=50 AND AGE <60 THEN '50-59'
+    WHEN AGE >=60 AND AGE <70 THEN '60-69'
+    WHEN AGE >=70 AND AGE <80 THEN '70-79'
+    ELSE '80+'
+  END AS AGE_GROUP,
+  AVG(HEART_RATE) AS AVG_HR,
+  MIN(HEART_RATE) AS MIN_HR,
+  MAX(HEART_RATE) AS MAX_HR
+FROM (
+  SELECT
+    P.AGE,
+    VS.HEART_RATE,
+    ROW_NUMBER () OVER (PARTITION BY P.PATIENT_ID ORDER BY VS.READING_DATE DESC) AS RN
+  FROM PATIENT P
+  JOIN VITAL_SIGNS VS ON P.PATIENT_ID = VS.PATIENT_ID
+) AS SUBQUERY 
+WHERE RN = 1
+GROUP BY AGE_GROUP; 
+
+/* In the above query I start by classifying the age groups of patients and 
+finding the avg, min,and max heart rates by age group. To limit my results to 
+only the most rescentreadings for each patient, I use the 'ROW_NUMBER()' 
+function to assign a row number for each record within each patient, ordered 
+by the reading date in descending order.
+By selecting only the row with a row number of 1, I ensure that I only consider 
+the lastest reading for each patient */
+
+
 
 
 
