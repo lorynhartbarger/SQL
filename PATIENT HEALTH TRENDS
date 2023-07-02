@@ -28,3 +28,25 @@ the rows that have row numbers corresponding to the middle position in the data 
 and having a vital count greater than equal to 3. Finally, from my subquery, I 
 calculate the average age which would result in the median age of pt with 
 vital sign readings greater than or equal to 3. */
+
+--identify patients with abnormal BP readings based on individual patient percentiles. 
+SELECT
+  P.PATIENT_ID,
+  P.PATIENT_NAME,
+  VS.SYSTOLIC_BP,
+  VS.DIASTOLIC_BP
+FROM PATIENTS P 
+JOIN VITAL_SIGNS VS ON P.PATIENT_ID = VS.PATIENT_ID
+GROUP BY P.PATIENT_ID, P.PATIENT_NAME
+HAVING MAX(VS.SYSTOLIC_BP) > (SELECT PERCENTILE_COUNT(0.95) WITHIN GROUP (ORDER BY SYSTOLIC_BP) FROM VITAL_SIGNS)
+  OR MAX(VS.DIASTOLIC_BP) > (SELECT PERCENTILE_COUNT(0.95) WITHIN GROUP (ORDER BY DIASTOLIC_BP) FROM VITAL_SIGNS);
+/* In this query, I identify the top 95% of both diastolic and systolic blood pressure readings from all patients.
+This is used to limit the results to return patient info for those patients with either systolic or diastolic
+BP >= to the 95th percentile. */
+
+
+
+
+
+
+
