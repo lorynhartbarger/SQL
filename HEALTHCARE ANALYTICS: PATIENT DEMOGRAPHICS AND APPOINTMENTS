@@ -1,5 +1,9 @@
 /* For this project, I will be analyzing patient demographics and 
-medical appointment records. */
+medical appointment records. I will find the total number of patients, 
+the average age of the patients, the average number of appointments per month, 
+determine the busiest day for appointments, the age distribution of the patients,
+the cities with the most patients, the average number of appointments per month 
+per doctor, and the appointments to patient ratio. */
 
 -- Example Data in PATIENTS Table --
 INSERT INTO PATIENTS (PATIENT_ID, PATIENT_NAME, AGE, GENDER, CITY)
@@ -26,55 +30,86 @@ VALUES
   (10, 5, '2023-06-25', 'Dr. Brown', 'Orthopedic Consultation');
 
 -- calculate the total number of patients and the avg age of patients
-TOTALS_P
 SELECT 
-  COUNT(DISTINCT PATIENT_ID) AS TOTAL_PATIENTS,
-  AVG(AGE) AS AVG_AGE,
-  PATIENT_ID
+  COUNT(DISTINCT PATIENT_ID) AS TTL_PT_CNT,
+  AVG(AGE) AS AVG_PT_AGE
 FROM PATIENTS;
 
 --calculate the total number of doctors, appointments, doctors per patients, 
-doctors per appointments, and patients per appointments
+--doctors per appointments, and patients per appointments
 
 TOTALS_DA:
 SELECT 
-  COUNT(DISTINCT DOCTOR_NAME) AS TOTAL_DOCTORS,
-  COUNT(DISTINCT APPOINTMENT_ID) AS TOTAL_APPOINTMENTS,
-  PATIENT_ID
+  COUNT(DISTINCT DOCTOR_NAME) AS TTL_DOCS,
+  COUNT(DISTINCT APPOINTMENT_ID) AS TTL_APPTS,
+  PATIENT_ID AS PT_ID
 FROM APPOINTMENTS;
-
-SELECT 
-  (DA.TOTAL_DOCTORS/DA.TOTAL_APPOINTMENTS) AS DOCS_PER_APPT,
-  (DA.TOTAL_DOCTORS/P.TOTAL_PATIENTS) AS DOSC_PER_PT,
-  (P.TOTAL_PATIENTS/ DA.TOTAL_APPOINTMENTS) AS PT_PER_APPT
-FROM TOTALS_DA
-JOIN TOTALS_P ON P.PATIENT_ID = DA.PATIENT_ID;
 
 --calculate the total number of appointments by gender
 SELECT
-  GENDER,
-  DA.TOTAL_APPOINTMENTS
-FROM PATIENTS
-JOIN TOTALS_DA DA ON DA.PATIENT_ID = P.PATIENT_ID
-GROUP BY GENDER;
+  P.GENDER AS PT_GENDER
+  COUNT(*) AS GENDER_APPT_CNT
+FROM PATIENTS P
+JOIN APPOINTMENTS A ON PATIENT_ID = A.PATIENT_ID
+GROUP BY P.GENDER;
 
-
---calculate the numer of appointments per month
+--calculate the number of appointments per month
 SELECT
-  DATE_TRUNC('month',APPOINTMENT_DATE) AS MONTH,
-  COUNT(*) AS APPOINTMENT_COUNT,
-  AVG(COUNT(*)) OVER () AS AVG_APPT_PER_MONTH
+  DATE_TRUNC('month', APPOINTMENT_DATE) AS APPT_MONTH,
+  COUNT(*) AS MONTHLY_APPT_CNT
 FROM APPOINTMENTS
 GROUP BY MONTH;
 
+--calculate the average number of appointments per month
+SELECT
+  AVG(APPOINTMENT_COUNT) AS AVG_APPT_PER_MONTH
+FROM (
+  SELECT
+    DATE_TRUNC('month', APPOINTMENT_DATE) AS APPT_MONTH,
+    COUNT(*) AS APPT_CNT_TEMP_2
+  FROM APPOINTMENTS
+  GROUP BY MONTH
+) AS subquery;
+
 --determine the busiest day for appointments
 SELECT 
-  APPOINTMENT_DATE,
-  COUNT(*) AS APPOINTMENT_COUNT
+  DATE_TRUNC('day', APPOINTMENT_DATE) AS BUSIEST_APPT_DAY,
+  COUNT(*) AS DAILY_APPT_CNT
 FROM APPOINTMENTS
 GROUP BY APPOINTMENT_DATE
 ORDER BY APPOINTMENT_COUNT DESC
 LIMIT 1;
+
+--calculate the age distribution of the patients
+SELECT
+  AGE,
+  COUNT(*) AS PT_CNT_BY_GENDER
+FROM PATIENTS
+GROUP BY AGE
+ORDER BY AGE;
+
+--calculate the cities with the most patients
+SELECT
+  CITY,
+  COUNT(*) AS PT_CNT_BY_CITY
+FROM PATIENTS
+GROUP BY CITY
+ORDER BY PATIENT_COUNT DESC;
+
+--calculate the average number of appointments per month per doctor
+SELECT
+  DOCTOR_NAME,
+  DATE_TRUNC('month', APPOINTMENT_DATE) AS APPT_MONTH_2,
+  COUNT(*) AS AVG_CNT_PER_MONTH_DOC
+FROM APPOINTMENTS
+GROUP BY DOCTOR_NAME, APPT_MONTH_2;
+
+--calculate the appointments to patient ratio
+SELECT
+  COUNT(DISTINCT APPOINTMENT_ID) AS TTL_APPT_1,
+  COUNT(DISTINCT PATIENT_ID) AS TTL_PT_1,
+  COUNT(DISTINCT APPOINTMENT_ID) / COUNT(DISTINCT PATIENT_ID) AS APPOINTMENTS_TO_PATIENT_RATIO
+FROM APPOINTMENTS;
 
 
 
