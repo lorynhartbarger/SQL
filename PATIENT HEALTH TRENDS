@@ -1,0 +1,30 @@
+/* For this project, I have three tables containing patient health care data:
+PATIENTS (PATIENT_ID, PATIENT_NAME, AGE, GENDER, CITY)
+VITAL_SIGNS(READING_ID,PATIENT_ID,READING_DATE,TEMP,BP,HEART_RATE)
+LABS(RESULT_ID,PATIENT_ID,TEST_NAME,RESULT_VALUE,RESULT_DATE)
+I will perform various health care analytics using the above tables
+*/
+
+--calculate the median age of pts (for pts with at least 3 vital sign readings
+SELECT
+  AVG(AGE) AS MEDIAN_AGE
+FROM (
+  SELECT
+  P.AGE,
+  ROW_NUMBER() OVER (ORDER BY P.AGE) AS ROW_NUM,
+  COUNT(VS.READING_ID) AS VITAL_COUNT,  
+  COUNT(*) OVER () TOTAL_COUNT
+  FROM PATIENTS P
+  JOIN VITAL_SIGNS VS ON P.PATIENT_ID = VS.PATIENT_ID
+) AS SUBQUERY
+WHERE ROW_NUM = CEIL((TOTAL_COUNT +1)/2)
+  OR ROW_NUM = FLOOR((TOTAL_COUNT +1)/2)
+  AND VITAL_COUNT >=3;
+
+/* In the above query I assign a row number to each record using 
+a window function ordered by age ascending. 
+Then, I calculate the total number of records in the dataset. Next, I select 
+the rows that have row numbers corresponding to the middle position in the data set 
+and having a vital count greater than equal to 3. Finally, from my subquery, I 
+calculate the average age which would result in the median age of pt with 
+vital sign readings greater than or equal to 3. */
