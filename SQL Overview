@@ -1,0 +1,46 @@
+/* This is an SQL overview of functions, commands and uses */
+
+/* Terms
+DB - organized collection of data, stored, and retrieved digitally from
+       a remote or local computer system. 
+DBMS - Database management system is the system software responsible for the 
+       creation, retrieval, updation, and management of the db. It ensures that data
+       is organized, and easily accessible by serving as the interface between the db
+       and the end user.
+RDBMS - Relational DBMS store data in the form of a collection of tables, and relationships
+       can be made between the common fields of these tables. *most modern DBMS are RDBMS.
+SQL - the standard language for retrieving and manipulating structured databases. 
+MySQL - a RDBMS
+Table - an organized collection of data stored in the form of rows and columns
+SQL constraints - used to specify the rules concerning data in the table. It can be 
+       applied for multiple fields in an sql table during the creation of the table or 
+       after creating using the ALTER TABLE command.
+NOT NULL - restricts NULL values from being inserted into a columm
+        Ex: CREATE TABLE Employees (
+              id INT PRIMARY KEY,
+              name VARCHAR(50) NOT NULL,
+              age INT
+               );
+          in this example, we contrain the name field to only those with a character
+          limit of 50 and no null values. So if you tried to insert a row with a null name 
+          value, an error would occur. 
+CHECK - Verifies that all values in a field satisfy a condition
+        Ex: CREATE TABLE Products (
+              id INT PRIMARY KEY,
+              name VARCHAR(50),
+              price DECIMAL(10,2) CHECK (price >= 0)
+            );
+        in this example, the field price is constrained to only values greater then 0
+        so if you were to try to insert a row with a negative price value, an error would
+        occur.
+DEFAULT - automatically assignes a default value if no value has been specified for the field
+        Ex:  CREATE TABLE Customers (
+              id INT PRIMARY KEY,
+              name VARCHAR(50),
+              email VARCHAR(50) DEFAULT 'no email provided'
+            );
+        in this example, the field email is con
+
+
+
+
