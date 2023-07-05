@@ -1,6 +1,6 @@
 /* For this project, I will provide examples of how the SQL Window Functions
 can save time and increase performance. I will highlight the aggregate query
-and then the analytical version using the Window functions*/
+and then the analytical query using the Window functions*/
 
 /*
 SALES TABLE
@@ -14,9 +14,9 @@ order_id | product_id | sale_date  | quantity | price
 6        | 101        | 2022-01-06 | 3        | 10.00
 */
 
-*/ Row Number
+*/ ROW_NUMBER()
 Task: Rank the Sales orders based on price descending with unique row numbers.
-If there is a tie, order by order_id.
+If there is a tie, order by order_id. */
 -Aggregate Query
 SELECT 
   (SELECT COUNT(*) FROM SALES S2 WHERE S2.price > S1.price 
@@ -35,7 +35,7 @@ row_number | order_id | price
 5          | 3        | 10.00
 6          | 6        | 10.00
 */
--Window Function
+-Window Function Query using ROW_NUMBER()
 SELECT 
   ROW_NUMBER() OVER (ORDER BY price DESC) AS row_number,
   order_id,
@@ -51,5 +51,41 @@ row_number | order_id | price
 5          | 3        | 10.00
 6          | 6        | 10.00
 */
- 
+
+/* RANK()
+Task: Rank the orders by prices descendingly. */
+--Aggregate Version
+SELECT
+  (SELECT COUNT(DISTINCT s2.price) FROM SALES s2 
+    WHERE s2.price > s1.price) + 1 AS rank,
+  order_id,
+  price
+FROM SALES s1
+ORDER BY rank;
+/*resulting data:
+rank | order_id | price
+-----+----------+-------
+1    | 4        | 20.00
+2    | 2        | 15.00
+2    | 5        | 15.00
+3    | 1        | 10.00
+3    | 3        | 10.00
+3    | 6        | 10.00
+*/
+--Window Function Query using RANK()
+SELECT
+  RANK() OVER (ORDER BY price DESC) AS rank,
+  order_id,
+  price
+FROM SALES;
+/*resulting data:
+rank | order_id | price
+-----+----------+-------
+1    | 4        | 20.00
+2    | 2        | 15.00
+2    | 5        | 15.00
+3    | 1        | 10.00
+3    | 3        | 10.00
+3    | 6        | 10.00
+*/
 
