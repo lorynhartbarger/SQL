@@ -45,7 +45,7 @@ SELECT
   ROW_NUMBER() OVER (PARTITION BY genre ORDER BY LB.publication_year) AS ROWNU
 FROM Library_Books LB;
 
-/* Results */
+/* Results: */
 | title                                 | genre         | publication_year | ROWNU |
 | ------------------------------------- | ------------- | ---------------- | ----- |
 | The Great Gatsby                      | Classic       | 1925             | 1     |
@@ -73,3 +73,40 @@ FROM Library_Books LB;
 | The Alchemist                         | Fiction       | 1988             | 1     |
 | Pride and Prejudice                   | Romance       | 1813             | 1     |
 
+/* Task: Creat a string of book titles by genre ordered by price descendingly 
+
+--AGGREGATE VERSION 
+SELECT
+  LB.genre,
+  LB.price,
+  (
+    SELECT GROUP_CONCAT(LB2.title ORDER BY LB2.price DESC SEPARATOR ', ')
+    FROM Library_Books LB2
+    WHERE LB2.genre = LB.genre
+  ) AS book_list
+FROM Library_Books LB
+ORDER BY genre, price DESC;
+
+--ANALYTIC VERSION USING ROW_NUMBER ()
+SELECT
+LB.genre,
+LB.price,
+LISTAGG(LB.title, ', ')
+  WITHIN GROUP (ORDER BY price DESC)
+      OVER (PARTITION BY LB.genre) as book_list
+FROM Library_Books LB
+ORDER BY genre, price DESC;
+
+/* Results: */                                                             
+| genre         | price | book_list                                                                |
+| ------------- | ----- | ------------------------------------------------------------------------ |
+| Classic       | 12.99 | The Great Gatsby, To Kill a Mockingbird                                  |
+| Classic       | 9.99  | The Great Gatsby, To Kill a Mockingbird                                  |
+| Coming-of-Age | 11.99 | The Catcher in the Rye                                                   |
+| Dystopian     | 12.99 | Brave New World, 1984                                                    |
+| Dystopian     | 10.99 | Brave New World, 1984                                                    |
+| Fantasy       | 19.99 | The Lord of the Rings, Harry Potter and the Sorcerer's Stone, The Hobbit |
+| Fantasy       | 14.99 | The Lord of the Rings, Harry Potter and the Sorcerer's Stone, The Hobbit |
+| Fantasy       | 9.99  | The Lord of the Rings, Harry Potter and the Sorcerer's Stone, The Hobbit |
+| Fiction       | 10.99 | The Alchemist                                                            |
+| Romance       | 8.99  | Pride and Prejudice                                                      |
