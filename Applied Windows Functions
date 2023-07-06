@@ -1,4 +1,6 @@
-/* for this project, I will use the windows functions to query the Library_Books table that I created below */
+/* For this project, I will highlight the benefits of using the windows functions over aggreagate functions 
+by showing both versions of the queries. As you can see, the windows functions often result in much shorter queries. 
+The Library_Books table that I created below, will be used for my queries. */
 
 CREATE TABLE Library_Books (
   book_id INT PRIMARY KEY,
@@ -45,7 +47,7 @@ SELECT
   ROW_NUMBER() OVER (PARTITION BY genre ORDER BY LB.publication_year) AS ROWNU
 FROM Library_Books LB;
 
-/* Results: */
+/* Results: 
 | title                                 | genre         | publication_year | ROWNU |
 | ------------------------------------- | ------------- | ---------------- | ----- |
 | The Great Gatsby                      | Classic       | 1925             | 1     |
@@ -58,22 +60,9 @@ FROM Library_Books LB;
 | Harry Potter and the Sorcerer's Stone | Fantasy       | 1997             | 3     |
 | The Alchemist                         | Fiction       | 1988             | 1     |
 | Pride and Prejudice                   | Romance       | 1813             | 1     |
+*/
 
-
-| title                                 | genre         | publication_year | ROWNU |
-| ------------------------------------- | ------------- | ---------------- | ----- |
-| The Great Gatsby                      | Classic       | 1925             | 1     |
-| To Kill a Mockingbird                 | Classic       | 1960             | 2     |
-| The Catcher in the Rye                | Coming-of-Age | 1951             | 1     |
-| Brave New World                       | Dystopian     | 1932             | 1     |
-| 1984                                  | Dystopian     | 1949             | 2     |
-| The Hobbit                            | Fantasy       | 1937             | 1     |
-| The Lord of the Rings                 | Fantasy       | 1954             | 2     |
-| Harry Potter and the Sorcerer's Stone | Fantasy       | 1997             | 3     |
-| The Alchemist                         | Fiction       | 1988             | 1     |
-| Pride and Prejudice                   | Romance       | 1813             | 1     |
-
-/* Task: Creat a string of book titles by genre ordered by price descendingly 
+/* Task: Creat a string of book titles by genre ordered by price descendingly */
 
 --AGGREGATE VERSION 
 SELECT
@@ -97,7 +86,7 @@ SELECT
 FROM Library_Books LB
 ORDER BY genre, price DESC;
 
-/* Results: */                                                             
+/* Results:                                                              
 | genre         | price | book_list                                                                |
 | ------------- | ----- | ------------------------------------------------------------------------ |
 | Classic       | 12.99 | The Great Gatsby, To Kill a Mockingbird                                  |
@@ -110,6 +99,7 @@ ORDER BY genre, price DESC;
 | Fantasy       | 9.99  | The Lord of the Rings, Harry Potter and the Sorcerer's Stone, The Hobbit |
 | Fiction       | 10.99 | The Alchemist                                                            |
 | Romance       | 8.99  | Pride and Prejudice    
+*/
 
 /* Task: Create two additional columns using the price:
 the next most expensive price and the previous least expensive price */
@@ -134,7 +124,7 @@ SELECT
 FROM Library_Books LB
 ORDER BY price;
 
-/*Results: */
+/*Results: 
 | title                                 | price | next_most_exp_price | next_least_exp_price |
 | ------------------------------------- | ----- | ------------------- | -------------------- |
 | Pride and Prejudice                   | 8.99  | 9.99                | least expensive      |
@@ -147,7 +137,91 @@ ORDER BY price;
 | Brave New World                       | 12.99 | 14.99               | 12.99                |
 | Harry Potter and the Sorcerer's Stone | 14.99 | 19.99               | 12.99                |
 | The Lord of the Rings                 | 19.99 | most expensive      | 14.99                |
+*/
 
+/* Task: Create ranks using ascending availability within genres. */
+
+--AGGREGATE VERSION 
+SELECT
+    LB.title,
+    LB.genre,
+    LB.availability,
+    (SELECT COUNT(*) FROM Library_Books WHERE genre = LB.genre AND availability < LB.availability) + 1 AS avail_rank,
+    (SELECT COUNT(DISTINCT availability) FROM Library_Books WHERE genre = LB.genre AND availability <= LB.availability) AS avail_dense_rank
+FROM
+    Library_Books LB
+ORDER BY
+    LB.title;
+
+--ANALYTIC VERSION USING RANK () AND DENSE_RANK ()
+SELECT
+    LB.title,
+    LB.genre,
+    LB.availability,
+    RANK() OVER (PARTITION BY LB.genre
+                 ORDER BY LB.availability) as 		avail_rank,
+    DENSE_RANK() OVER (PARTITION BY LB.genre
+                 ORDER BY LB.availability) as 		avail_dense_rank
+FROM Library_Books LB
+ORDER BY LB.title;
+
+/* Results: 
+| title                                 | genre         | availability | avail_rank | avail_dense_rank |
+| ------------------------------------- | ------------- | ------------ | ---------- | ---------------- |
+| 1984                                  | Dystopian     | false        | 1          | 1                |
+| Brave New World                       | Dystopian     | true         | 2          | 2                |
+| Harry Potter and the Sorcerer's Stone | Fantasy       | false        | 1          | 1                |
+| Pride and Prejudice                   | Romance       | true         | 1          | 1                |
+| The Alchemist                         | Fiction       | true         | 1          | 1                |
+| The Catcher in the Rye                | Coming-of-Age | true         | 1          | 1                |
+| The Great Gatsby                      | Classic       | true         | 1          | 1                |
+| The Hobbit                            | Fantasy       | true         | 3          | 2                |
+| The Lord of the Rings                 | Fantasy       | false        | 1          | 1                |
+| To Kill a Mockingbird                 | Classic       | true         | 1          | 1                |
+*/
+
+/* Task: Retrive the book title of the cheapest and most expensive book by genre */
+
+--AGGREGATE VERSION 
+SELECT
+  LB.title,
+  LB.genre,
+  LB.price,
+  (SELECT LB_inner.title FROM Library_Books LB_inner WHERE LB_inner.genre = LB.genre ORDER BY LB_inner.price ASC LIMIT 1) AS least_exp,
+  (SELECT LB_inner.title FROM Library_Books LB_inner WHERE LB_inner.genre = LB.genre ORDER BY LB_inner.price DESC LIMIT 1) AS most_exp
+FROM
+  Library_Books LB
+ORDER BY
+  LB.genre, LB.price;
+
+--ANALYTIC VERSION USING FIRST_VALUE () AND LAST_VALUE ()
+SELECT
+  LB.title,
+  LB.genre,
+  LB.price,
+  FIRST_VALUE(LB.title) OVER (PARTITION BY LB.genre ORDER BY LB.price
+    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS least_exp,
+  LAST_VALUE(LB.title) OVER (PARTITION BY LB.genre ORDER BY LB.price
+    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS most_exp
+FROM
+  Library_Books LB
+ORDER BY
+  LB.genre, LB.price;
+
+/* Results:
+| title                                 | genre         | price | least_exp              | most_exp               |
+| ------------------------------------- | ------------- | ----- | ---------------------- | ---------------------- |
+| To Kill a Mockingbird                 | Classic       | 9.99  | To Kill a Mockingbird  | The Great Gatsby       |
+| The Great Gatsby                      | Classic       | 12.99 | To Kill a Mockingbird  | The Great Gatsby       |
+| The Catcher in the Rye                | Coming-of-Age | 11.99 | The Catcher in the Rye | The Catcher in the Rye |
+| 1984                                  | Dystopian     | 10.99 | 1984                   | Brave New World        |
+| Brave New World                       | Dystopian     | 12.99 | 1984                   | Brave New World        |
+| The Hobbit                            | Fantasy       | 9.99  | The Hobbit             | The Lord of the Rings  |
+| Harry Potter and the Sorcerer's Stone | Fantasy       | 14.99 | The Hobbit             | The Lord of the Rings  |
+| The Lord of the Rings                 | Fantasy       | 19.99 | The Hobbit             | The Lord of the Rings  |
+| The Alchemist                         | Fiction       | 10.99 | The Alchemist          | The Alchemist          |
+| Pride and Prejudice                   | Romance       | 8.99  | Pride and Prejudice    | Pride and Prejudice    |
+*/
 
 
 
