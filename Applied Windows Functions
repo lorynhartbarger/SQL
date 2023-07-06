@@ -1,0 +1,75 @@
+/* for this project, I will use the windows functions to query the Library_Books table that I created below */
+
+CREATE TABLE Library_Books (
+  book_id INT PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  author VARCHAR(50) NOT NULL,
+  publication_year INT,
+  price DECIMAL(8, 2),
+  genre VARCHAR(50),
+  description TEXT,
+  availability BOOLEAN DEFAULT true
+);
+INSERT INTO Library_Books (book_id, title, author, publication_year, price, genre, description, availability)
+VALUES
+  (1, 'The Great Gatsby', 'F. Scott Fitzgerald', 1925, 12.99, 'Classic', 'A novel about the American Dream.', true),
+  (2, 'To Kill a Mockingbird', 'Harper Lee', 1960, 9.99, 'Classic', 'A story of racial injustice in the Deep South.', true),
+  (3, '1984', 'George Orwell', 1949, 10.99, 'Dystopian', 'A dystopian novel depicting a totalitarian society.', false),
+  (4, 'Pride and Prejudice', 'Jane Austen', 1813, 8.99, 'Romance', 'A classic love story set in 19th-century England.', true),
+  (5, 'The Catcher in the Rye', 'J.D. Salinger', 1951, 11.99, 'Coming-of-Age', 'A story of teenage angst and rebellion.', true),
+  (6, 'Harry Potter and the Sorcerer''s Stone', 'J.K. Rowling', 1997, 14.99, 'Fantasy', 'The start of the famous Harry Potter series.', false),
+  (7, 'The Hobbit', 'J.R.R. Tolkien', 1937, 9.99, 'Fantasy', 'An adventure in Middle-earth.', true),
+  (8, 'The Alchemist', 'Paulo Coelho', 1988, 10.99, 'Fiction', 'A philosophical novel about following one''s dreams.', true),
+  (9, 'The Lord of the Rings', 'J.R.R. Tolkien', 1954, 19.99, 'Fantasy', 'The epic tale of Frodo and the One Ring.', false),
+  (10, 'Brave New World', 'Aldous Huxley', 1932, 12.99, 'Dystopian', 'A futuristic society where everything is controlled.', true);
+
+/* Task: Create a column containing row counts within genres ordered by publication year */
+
+--AGGREGATE VERSION
+SELECT 
+  LB.title,
+  LB.genre,
+  LB.publication_year,
+  (SELECT COUNT(*)
+   FROM Library_Books LB2
+   WHERE LB2.genre = LB.genre AND LB2.publication_year <= LB.publication_year) AS ROWNU
+FROM Library_Books LB
+ORDER BY genre, publication_year;
+
+
+--ANALYTIC VERSION USING ROW_NUMBER ()
+SELECT 
+  LB.title,
+  LB.genre,
+  LB.publication_year,
+  ROW_NUMBER() OVER (PARTITION BY genre ORDER BY LB.publication_year) AS ROWNU
+FROM Library_Books LB;
+
+/* Results */
+| title                                 | genre         | publication_year | ROWNU |
+| ------------------------------------- | ------------- | ---------------- | ----- |
+| The Great Gatsby                      | Classic       | 1925             | 1     |
+| To Kill a Mockingbird                 | Classic       | 1960             | 2     |
+| The Catcher in the Rye                | Coming-of-Age | 1951             | 1     |
+| Brave New World                       | Dystopian     | 1932             | 1     |
+| 1984                                  | Dystopian     | 1949             | 2     |
+| The Hobbit                            | Fantasy       | 1937             | 1     |
+| The Lord of the Rings                 | Fantasy       | 1954             | 2     |
+| Harry Potter and the Sorcerer's Stone | Fantasy       | 1997             | 3     |
+| The Alchemist                         | Fiction       | 1988             | 1     |
+| Pride and Prejudice                   | Romance       | 1813             | 1     |
+
+
+| title                                 | genre         | publication_year | ROWNU |
+| ------------------------------------- | ------------- | ---------------- | ----- |
+| The Great Gatsby                      | Classic       | 1925             | 1     |
+| To Kill a Mockingbird                 | Classic       | 1960             | 2     |
+| The Catcher in the Rye                | Coming-of-Age | 1951             | 1     |
+| Brave New World                       | Dystopian     | 1932             | 1     |
+| 1984                                  | Dystopian     | 1949             | 2     |
+| The Hobbit                            | Fantasy       | 1937             | 1     |
+| The Lord of the Rings                 | Fantasy       | 1954             | 2     |
+| Harry Potter and the Sorcerer's Stone | Fantasy       | 1997             | 3     |
+| The Alchemist                         | Fiction       | 1988             | 1     |
+| Pride and Prejudice                   | Romance       | 1813             | 1     |
+
