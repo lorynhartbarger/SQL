@@ -87,13 +87,13 @@ SELECT
 FROM Library_Books LB
 ORDER BY genre, price DESC;
 
---ANALYTIC VERSION USING ROW_NUMBER ()
+--ANALYTIC VERSION USING LISTAGG ()
 SELECT
-LB.genre,
-LB.price,
-LISTAGG(LB.title, ', ')
-  WITHIN GROUP (ORDER BY price DESC)
-      OVER (PARTITION BY LB.genre) as book_list
+  LB.genre,
+  LB.price,
+  LISTAGG(LB.title, ', ')
+    WITHIN GROUP (ORDER BY price DESC)
+        OVER (PARTITION BY LB.genre) as book_list
 FROM Library_Books LB
 ORDER BY genre, price DESC;
 
@@ -109,4 +109,46 @@ ORDER BY genre, price DESC;
 | Fantasy       | 14.99 | The Lord of the Rings, Harry Potter and the Sorcerer's Stone, The Hobbit |
 | Fantasy       | 9.99  | The Lord of the Rings, Harry Potter and the Sorcerer's Stone, The Hobbit |
 | Fiction       | 10.99 | The Alchemist                                                            |
-| Romance       | 8.99  | Pride and Prejudice                                                      |
+| Romance       | 8.99  | Pride and Prejudice    
+
+/* Task: Create two additional columns using the price:
+the next most expensive price and the previous least expensive price */
+
+--AGGREGATE VERSION 
+SELECT
+    LB.title,
+    LB.price,
+    COALESCE((SELECT MIN(price) FROM Library_Books WHERE price > LB.price), 'most expensive') AS next_most_exp_price,
+    COALESCE((SELECT MAX(price) FROM Library_Books WHERE price < LB.price), 'least expensive') AS next_least_exp_price
+FROM
+    Library_Books LB
+ORDER BY
+    LB.price;
+
+--ANALYTIC VERSION USING LEAD () AND LAG ()
+SELECT
+  LB.title,
+  LB.price,
+  LEAD(LB.price,1,'most expensive') OVER (ORDER BY LB.price) as next_most_exp_price,
+  LAG(LB.price,1,'least expensive') OVER (ORDER BY LB.price) as next_least_exp_price
+FROM Library_Books LB
+ORDER BY price;
+
+/*Results: */
+| title                                 | price | next_most_exp_price | next_least_exp_price |
+| ------------------------------------- | ----- | ------------------- | -------------------- |
+| Pride and Prejudice                   | 8.99  | 9.99                | least expensive      |
+| To Kill a Mockingbird                 | 9.99  | 9.99                | 8.99                 |
+| The Hobbit                            | 9.99  | 10.99               | 9.99                 |
+| 1984                                  | 10.99 | 10.99               | 9.99                 |
+| The Alchemist                         | 10.99 | 11.99               | 10.99                |
+| The Catcher in the Rye                | 11.99 | 12.99               | 10.99                |
+| The Great Gatsby                      | 12.99 | 12.99               | 11.99                |
+| Brave New World                       | 12.99 | 14.99               | 12.99                |
+| Harry Potter and the Sorcerer's Stone | 14.99 | 19.99               | 12.99                |
+| The Lord of the Rings                 | 19.99 | most expensive      | 14.99                |
+
+
+
+
+
