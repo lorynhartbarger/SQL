@@ -194,7 +194,7 @@ FROM
 ORDER BY
   LB.genre, LB.price;
 
---ANALYTIC VERSION USING FIRST_VALUE () AND LAST_VALUE ()
+--ANALYTIC VERSION USING FIRST_VALUE () AND LAST_VALUE () AND A WINDOWS CLAUSE
 SELECT
   LB.title,
   LB.genre,
@@ -223,6 +223,144 @@ ORDER BY
 | Pride and Prejudice                   | Romance       | 8.99  | Pride and Prejudice    | Pride and Prejudice    |
 */
 
+/* Task: Create a running total column for price by genre */
 
+--AGGREGATE VERSION
+SELECT
+  LB.genre,
+  LB.price,
+  (
+    SELECT SUM(LB_inner.price)
+    FROM Library_Books LB_inner
+    WHERE LB_inner.genre = LB.genre
+      AND LB_inner.price <= LB.price
+  ) AS price_running_total
+FROM Library_Books LB
+ORDER BY LB.genre, LB.price;
 
+--ANALYTIC VERSION USING A ROWS WINDOWS CLAUSE 
+SELECT
+  LB.genre,
+  LB.price,
+  SUM(LB.price) OVER (PARTITION BY LB.genre ORDER BY LB.price
+    ROWS BETWEEN UNBOUNDED PRECEDING 
+    AND CURRENT ROW) AS price_running_total
+FROM Library_Books LB
+ORDER BY LB.genre, LB.price; 
+
+/*Results:
+| genre         | price | price_running_total |
+| ------------- | ----- | ------------------- |
+| Classic       | 9.99  | 9.99                |
+| Classic       | 12.99 | 22.98               |
+| Coming-of-Age | 11.99 | 11.99               |
+| Dystopian     | 10.99 | 10.99               |
+| Dystopian     | 12.99 | 23.98               |
+| Fantasy       | 9.99  | 9.99                |
+| Fantasy       | 14.99 | 24.98               |
+| Fantasy       | 19.99 | 44.97               |
+| Fiction       | 10.99 | 10.99               |
+| Romance       | 8.99  | 8.99                |
+*/
+
+/* Task: Calculate the average price using the current, previous, and next row ordered 
+by price */
+
+--AGGREGATE VERSION WAS NOT POSSIBLE
+
+--ANALYTICS VERSION USING ROWS WINDOW CLAUSE
+SELECT
+  LB.title,
+  LB.price,
+  ROUND(AVG(LB.price) OVER ( ORDER BY LB.price
+    ROWS BETWEEN 1 PRECEDING
+    AND 1 FOLLOWING),2) AS avg_price3
+FROM 
+Library_Books LB
+ORDER BY LB.price, LB.title;
+
+/* Results: 
+
+| title                                 | price | avg_price3 |
+| ------------------------------------- | ----- | ---------- |
+| Pride and Prejudice                   | 8.99  | 9.49       |
+| The Hobbit                            | 9.99  | 10.32      |
+| To Kill a Mockingbird                 | 9.99  | 9.66       |
+| 1984                                  | 10.99 | 10.66      |
+| The Alchemist                         | 10.99 | 11.32      |
+| The Catcher in the Rye                | 11.99 | 11.99      |
+| Brave New World                       | 12.99 | 13.66      |
+| The Great Gatsby                      | 12.99 | 12.66      |
+| Harry Potter and the Sorcerer's Stone | 14.99 | 15.99      |
+| The Lord of the Rings                 | 19.99 | 17.49      |
+*/
+
+/* Task: Determine the second oldest and most recent publication year within each genre */
+
+--AGGREGATE VERSION 
+SELECT
+  LB.title,
+  LB.publication_year,
+  LB.genre,
+  CASE WHEN SO.second_oldest_publication IS NULL THEN 'Not Applicable' ELSE CAST(SO.second_oldest_publication AS VARCHAR) END AS second_oldest_publication,
+  NP.newest_publication
+FROM
+  Library_Books LB
+LEFT JOIN (
+  SELECT
+    genre,
+    MIN(publication_year) AS second_oldest_publication
+  FROM (
+    SELECT
+      genre,
+      publication_year,
+      ROW_NUMBER() OVER (PARTITION BY genre ORDER BY publication_year) AS rn
+    FROM
+      Library_Books
+  ) subquery
+  WHERE
+    rn = 2
+  GROUP BY
+    genre
+) SO ON LB.genre = SO.genre
+LEFT JOIN (
+  SELECT
+    genre,
+    MAX(publication_year) AS newest_publication
+  FROM
+    Library_Books
+  GROUP BY
+    genre
+) NP ON LB.genre = NP.genre
+ORDER BY LB.genre, LB.publication_year;
+
+--ANALYTICAL VERSION USING NTH_VALUE() AND MAX()
+SELECT
+  LB.title,
+  LB.publication_year,
+  LB.genre,
+  COALESCE(
+    NTH_VALUE(LB.publication_year, 2) OVER (
+      PARTITION BY LB.genre
+      ORDER BY LB.publication_year
+      ROWS BETWEEN UNBOUNDED PRECEDING 
+        AND UNBOUNDED FOLLOWING), 'Not Applicable') AS second_oldest_publication,
+  MAX(LB.publication_year) OVER (PARTITION BY LB.genre) as newest_publication
+FROM
+  Library_Books LB;
+
+/* Results: 
+| title                                 | publication_year | genre         | second_oldest_publication | newest_publication |
+| ------------------------------------- | ---------------- | ------------- | ------------------------- | ------------------ |
+| The Great Gatsby                      | 1925             | Classic       | 1960                      | 1960               |
+| To Kill a Mockingbird                 | 1960             | Classic       | 1960                      | 1960               |
+| The Catcher in the Rye                | 1951             | Coming-of-Age | Not Applicable            | 1951               |
+| Brave New World                       | 1932             | Dystopian     | 1949                      | 1949               |
+| 1984                                  | 1949             | Dystopian     | 1949                      | 1949               |
+| The Hobbit                            | 1937             | Fantasy       | 1954                      | 1997               |
+| The Lord of the Rings                 | 1954             | Fantasy       | 1954                      | 1997               |
+| Harry Potter and the Sorcerer's Stone | 1997             | Fantasy       | 1954                      | 1997               |
+| The Alchemist                         | 1988             | Fiction       | Not Applicable            | 1988               |
+| Pride and Prejudice                   | 1813             | Romance       | Not Applicable            | 1813               |
+*/
 
