@@ -1,6 +1,7 @@
 /* For this project, I will highlight the benefits of using the windows functions over aggreagate functions 
-by showing both versions of the queries. As you can see, the windows functions often result in much shorter queries. 
-The Library_Books table that I created below, will be used for my queries. */
+by showing both versions of the queries. As you can see, queries using the windows functions offer code simplicity, 
+easier readibility, and faster performance compared to their aggregate conterparts. 
+The Library_Books table that I created below, will be used for all queries. */
 
 CREATE TABLE Library_Books (
   book_id INT PRIMARY KEY,
