@@ -1,0 +1,16 @@
+// The following notes will outline the basics of querying DB and DW using SQL
+
+/*Basic SQL Commands:
+
+SELECT - retrieves one or more rows from one or more tables. Ex: SELECE first_name, last_name FROM contacts; 
+
+INSERT - adds one or more rows into a table. It only works against a single table. Ex: INSERT INTO contacts (first_name, last_name) VALUES ('Loryn','Hartbarger'); 
+--Autoincrementing columns like an id column will automatically populate with an incremented number as new rows are added. Sometime used as the Primary Key--
+
+UPDATE - modifies one or more rows in a table. Ex: UPDATE contacts SET last_name = 'Alston' WHERE id = 1;  
+--if you do not specify a WHERE clause, every single row would be updated to Alston--
+
+DELETE - removes one or more rows from a table. Ex: DELETE FROM contacts WHERE id = 3;
+--if you do not specify a WHERE clause, every single row will be deleted--
+
+
