@@ -13,4 +13,8 @@ UPDATE - modifies one or more rows in a table. Ex: UPDATE contacts SET last_name
 DELETE - removes one or more rows from a table. Ex: DELETE FROM contacts WHERE id = 3;
 --if you do not specify a WHERE clause, every single row will be deleted--
 
+SELECT * FROM table; will grab all columns in the table. This is a bad practice and it is better to explicitly list the column names. 
 
+If you are querying from multiple tables, you need to specify the table each column comes from. Ex: SELECT person.fist_name, person.last_name, id.ss_number FROM person, id; 
+--it is a good practice to table qualify the columns even if you are only pulling from one table as it may speed up the query process and it makes the statement easier to read--
+--you can simplify this process by aliasing the table with a small acronym and use that as the table qualifier. Ex: FROM persons p--
