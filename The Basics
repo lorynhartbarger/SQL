@@ -17,4 +17,13 @@ SELECT * FROM table; will grab all columns in the table. This is a bad practice 
 
 If you are querying from multiple tables, you need to specify the table each column comes from. Ex: SELECT person.fist_name, person.last_name, id.ss_number FROM person, id; 
 --it is a good practice to table qualify the columns even if you are only pulling from one table as it may speed up the query process and it makes the statement easier to read--
---you can simplify this process by aliasing the table with a small acronym and use that as the table qualifier. Ex: FROM persons p--
+--you can simplify this process by aliasing the table with a small acronym and use that as the table qualifier. Ex: FROM persons p. This is a best pratice.--
+--You can also alias column names. Ex SELECT id AS idenity FROM source s.--
+
+USE - declares which data base you are pulling from. EX: USE contacts; SELECT .... 
+
+DISTINCT - restrains the results to unique values. EX: SELECT DISTINCT customer_id FROM orders; 
+--You mat have mmultiple orders from the same customer_id, but if you only wanted to see a list of customers, use the distinct command.--
+-- if you call multiple tables in your SELECT DISTINCT statement, you will return the distinct list of the combination of both columns. --
+
+WHERE -  constrains the result set and comes after the FROM clause and contains boolean expressions. 
