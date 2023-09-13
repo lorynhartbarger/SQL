@@ -27,3 +27,27 @@ DISTINCT - restrains the results to unique values. EX: SELECT DISTINCT customer_
 -- if you call multiple tables in your SELECT DISTINCT statement, you will return the distinct list of the combination of both columns. --
 
 WHERE -  constrains the result set and comes after the FROM clause and contains boolean expressions. 
+
+AND - contrains the result set where all conditions are true. Ex: SELECT * FROM table WHERE first_name = 'Loryn' AND last_name = 'Hartbarger'; 
+
+OR - contrains the result set where at least one of the conditions is truw. Ex: SELECT * FROM table WHERE first_name = 'Loryn'  OR last_name = 'Alston'; 
+
+BETWEEN - shorthand way to replace 2 statements >= and <= with one statement. Ex: SELECT * FROM table WHERE cost BETWEEN 100 AND 200;
+
+LIKE - fuzzy search. Ex: SELECT * FROM table WHERE first_name LIKE L%; 
+--this will return all rows where the field first name starts with 'L'. If you put the % before the L, it will return all rows that end in 'L'. --
+--You can also sandwhich the % between to values like %ory%. This will fuzzy search on both ends of the string. --
+
+IN - shorter way of using OR on the same field. Ex: SELECT * FROM movies WHERE title IN ('Clueless', 'Mean Girls', 'Lord of the Rings'); 
+
+IS - only works against NULL. Ex: SELECT * FROM movies WHERE sequal_name IS NULL; 
+
+IS NOT - only works against NULL. Ex: SELECT * FROM movies WHERE reviws IS NOT NULL; 
+
+ORDER BY - sorts the results of the query. SELECT * FROM movies WHERE star = 'Leonardo DiCaprio' ORDER BY release_date DESC; 
+-- use DESC or ASC to sort your data accourding to your needs.--
+
+SET - computes new values from column values. Ex: COUNT, MAX, MIN, AVG, SUM
+--COUNT is often used with DISTINCT. Ex: COUNT( DISTINCT movies)
+
+
