@@ -54,3 +54,8 @@ GROUP BY - allows multiple columns in a SELECT statement and still use a set fun
 
 HAVING - used in queries with a GROUP BY clause. Ex: SELECT genre, SUM(box_office_sales) as total_sales FROM movies GROUP BY genre HAVING COUNT(DISTINCT title) >10 ; 
 
+CROSS JOIN - simplest join, returns all rows from both tables, no WHERE clause. The least useful. Ex: SELECT m.title, d.age FROM movies m, director d; 
+-- you do not want to do this type of JOIN unless you are specifically trying to do something. -- 
+
+
+
