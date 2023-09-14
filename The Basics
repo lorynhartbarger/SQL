@@ -48,6 +48,9 @@ ORDER BY - sorts the results of the query. SELECT * FROM movies WHERE star = 'Le
 -- use DESC or ASC to sort your data accourding to your needs.--
 
 SET - computes new values from column values. Ex: COUNT, MAX, MIN, AVG, SUM
---COUNT is often used with DISTINCT. Ex: COUNT( DISTINCT movies)
+--COUNT is often used with DISTINCT. Ex: COUNT( DISTINCT actors). This will result in the list of distinct actors in the table.
 
+GROUP BY - allows multiple columns in a SELECT statement and still use a set function. Ex: SELECT genre, SUM(box_office_sales) as total_sales FROM movies GROUP BY genre;
+
+HAVING - used in queries with a GROUP BY clause. Ex: SELECT genre, SUM(box_office_sales) as total_sales FROM movies GROUP BY genre HAVING COUNT(DISTINCT title) >10 ; 
 
