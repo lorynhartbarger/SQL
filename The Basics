@@ -59,3 +59,8 @@ CROSS JOIN - simplest join, returns all rows from both tables, no WHERE clause. 
 
 
 
+
+
+
+
+
