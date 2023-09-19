@@ -1,0 +1,29 @@
+/* 
+1. Aggregate Functions:
+Aggregate functions in SQL perform calculations on a set of values from a column and return a single result, summarizing the entire set. These functions operate over a group of rows and produce a single result based on that group.
+Common aggregate functions include COUNT(), SUM(), AVG(), MIN(), and MAX(). Here's a brief explanation of each:
+      COUNT(): Counts the number of rows that meet the specified criteria.
+      SUM(): Calculates the sum of values in a specified column.
+      AVG(): Calculates the average of values in a specified column.
+      MIN(): Retrieves the minimum value from a specified column.
+      MAX(): Retrieves the maximum value from a specified column.
+Aggregate functions are often used in conjunction with the GROUP BY or HAVING clauses to perform calculations for each group of rows.
+
+2. Analytical (Window) Functions:
+Analytical functions, also known as window functions, operate on a "window" of rows related to the current row within the result set. Unlike aggregate functions, 
+analytical functions do not collapse multiple rows into a single result; instead, they provide additional information or perform calculations within the result set without affecting the overall grouping.
+Some common analytical functions include ROW_NUMBER(), RANK(), DENSE_RANK(), NTILE(), LEAD(), LAG(), and OVER().
+    ROW_NUMBER(): Assigns a unique number to each row within a result set.
+    RANK(): Assigns a rank to each row based on specified criteria.
+    DENSE_RANK(): Similar to RANK(), but without gaps between rank values for tied rows.
+    NTILE(): Divides a result set into specified number of approximately equal parts, assigning a group number to each row.
+    LEAD(): Accesses data from the next row in the result set within the same query.
+    LAG(): Accesses data from the previous row in the result set within the same query.
+Analytical functions use the OVER() clause to define the window or group of rows to which the function applies.
+
+Key Differences:
+Aggregate functions collapse multiple rows into a single result based on the entire set, while analytical functions perform calculations within a window or group of related rows without collapsing them.
+Aggregate functions summarize data across groups of rows, while analytical functions provide additional information or perform calculations within the result set, often used for comparative or ranking purposes.
+In summary, aggregate functions work on groups of rows to produce a single summary result, whereas analytical functions operate within a window or set of related rows, providing insights or calculations specific to each row in the result set.
+*/
+
